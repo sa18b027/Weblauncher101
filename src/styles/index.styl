@@ -1,0 +1,40 @@
+@import "~@/styles/variables.styl";
+
+.favorite-element
+    background-color transparent
+    height ($maxWidth/4)vw 
+    width ($maxWidth/4)vw
+    
+    
+    & > div
+        background-color green
+        height calc(100% - 2rem)
+        width calc(100% - 2rem)
+        margin 1rem
+        display flex
+        flex-flow column nowrap
+        
+       
+        &.highlighted
+            background-color #FF6EB4
+
+        
+    
+        & > a
+            font-size 1.2rem
+            text-decoration unset
+            color unset
+            overflow hidden
+            width 100%
+            text-align center
+            text-overflow ellipsis
+            white-space nowrap
+
+        & > *
+            max-width 80%
+            margin 0.5rem auto
+
+
+@media (max-width: 350px)
+    .favorite-element
+        width ($maxWidth/2)vw
