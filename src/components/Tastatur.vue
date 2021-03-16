@@ -46,11 +46,11 @@ export default {
   props: {
     keyboardClass: {
       default: "simple-keyboard",
-      type: String
+      type: String,
     },
     input: {
-      type: String
-    }
+      type: String,
+    },
   },
 
   computed: {
@@ -58,16 +58,17 @@ export default {
       "getCurrentCoor",
       "getSelected",
       "getHighlighted",
-      "getArrowDirection"
+      "getArrowDirection",
     ]),
     //array mit a b c,...
     arrButton: function() {
-      if (this.keySchalter) {
-        return this.buttons1.split(" ");
-      } else {
-        return this.buttons2.split(" ");
+      if(this.keySchalter){
+            return this.buttons1.split(" ");
+      } else{
+            return this.buttons2.split(" ");
       }
-    }
+
+    },
   },
 
   data: () => ({
@@ -85,69 +86,61 @@ export default {
     storeInput: {},
     keySchalter: true,
     buttons1:
-      "a b c d e f g h 1 2 3 4 5 6 7 8 i j k l m n o p 9 0 + - / * = % q r s t u v w x , ; . ? ! tab ( ) y z {shift} {space} @ _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF home {bksp}",
+      "a b c d e f g h 1 2 3 4 5 6 7 8 i j k l m n o p 9 0 + - / * = % q r s t u v w x , ; . ? tab2 tab ( ) y z {shift} {space} @ _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF home {bksp}",
     buttons2:
-      "A B C D E F G H 1 2 3 4 5 6 7 8 I J K L M N O P 9 0 + - / * = % Q R S T U V W X , ; . ? ! \u00A7 ( ) Y Z {shift} {space} @ _ : {enter} [ ] \u00C4 \u00D6 \u00DC \u00DF {shift2} {bksp}"
+      "A B C D E F G H 1 2 3 4 5 6 7 8 I J K L M N O P 9 0 + - / * = % Q R S T U V W X , ; . ? ! \u00A7 ( ) Y Z {shift} {space} @ _ : {enter} [ ] \u00C4 \u00D6 \u00DC \u00DF {shift2} {bksp}",
+
   }),
   mounted() {
-    //console.log(this.arrButton);
-    if (localStorage.getItem("mode")) {
-      this.mode = parseInt(localStorage.getItem("mode"));
-    } else {
-      this.mode = 1;
-    }
+    this.mode = 1;
+    let thiz = this;
+    //um bei der Tastatur den mode zu bestimmen, da es unter einera nderen domain läuft schickt er Nachricht an background.js
+    chrome.extension.sendMessage({subject:"mode"}, function(response) {
+      thiz.mode = response.mode;
+    });
     window.addEventListener("keyup", this.onKeyup);
     //////////////////////////////////////////////   \u00A7
     this.keyboard = new Keyboard({
       onChange: this.onChange,
-      //onKeyPress: this.onKeyPress,
       theme: "hg-theme-default hg-layout-default myTheme",
       layout: {
         default: [
           "a b c d e f g h 1 2 3 4 5 6 7 8",
           "i j k l m n o p 9 0 + - / * = %",
-          "q r s t u v w x , ; . ? ! tab ( )",
-          "y z {shift} {space} @ _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF home {bksp}"
+          "q r s t u v w x , ; . ? tab2 tab ( )",
+          "y z {shift} {space} @ _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF home {bksp}",
         ],
         shift: [
           "A B C D E F G H 1 2 3 4 5 6 7 8",
           "I J K L M N O P 9 0 + - / * = %",
           "Q R S T U V W X , ; . ? ! \u00A7 ( )",
-          "Y Z {shift} {space} @ _ : {enter} [ ] \u00C4 \u00D6 \u00DC \u00DF {shift2} {bksp}"
-        ]
+          "Y Z {shift} {space} @ _ : {enter} [ ] \u00C4 \u00D6 \u00DC \u00DF {shift2} {bksp}",
+        ],
       },
       buttonTheme: [
         {
           class: "sameSize",
           buttons:
-            "a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 1 2 3 4 5 6 7 8 i j k l m n o p 9 0 + - / * = % q r s t u v w x , ; . ? ! @ ( ) y z {shift} {space} U+0040 _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF \u00C4 \u00D6 \u00DC \u00A7 {shift2} {bksp} tab home"
+            "a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 1 2 3 4 5 6 7 8 i j k l m n o p 9 0 + - / * = % q r s t u v w x , ; . ? ! @ ( ) y z {shift} {space} U+0040 _ : {enter} [ ] \u00E4 \u00F6 \u00FC \u00DF \u00C4 \u00D6 \u00DC \u00A7 {shift2} {bksp} tab tab2 home",
         },
         {
           class: "atButton",
-          buttons: " @ "
-        }
-      ]
+          buttons: " @ ",
+        },
+      ],
     });
     //Gell all Text fields
-    const arrAllInput = document.querySelectorAll("input");
+    const arrAllInput = document.querySelectorAll('input');
     //add genuine class to enabled text fields
     let i1 = 0;
-    for (let i = 0; i < arrAllInput.length; i++) {
-      if (
-        arrAllInput[i].type == "text" &&
-        !arrAllInput[i].disabled &&
-        window.getComputedStyle(arrAllInput[i]).display != "none"
-      ) {
-        arrAllInput[i].classList.add("keyboard-input-vue-" + i1);
-        /* arrAllInput[i].addEventListener('focus', () => {
-             this.selq =  "keyboard-input-vue-" + i1;
-          }); */
-        i1++;
+    for(let i=0; i< arrAllInput.length;i++){
+      if(arrAllInput[i].type == "text" && !arrAllInput[i].disabled && window.getComputedStyle(arrAllInput[i]).display != 'none'){
+          arrAllInput[i].classList.add("keyboard-input-vue-" + i1);
+          i1++;
       }
     }
-    if (i1 > 0) {
-      //document.querySelector(".keyboard-input-vue-0").focus();
-      this.selq = "keyboard-input-vue-0";
+    if(i1 > 0){
+      this.selq = "keyboard-input-vue-0" ;
     }
   },
   methods: {
@@ -226,7 +219,9 @@ export default {
     },
     handleHighlighted: function(arrHighlighted) {
       let selected = this.getSelected;
-      let arrNotHighlighted = selected.filter(n => !arrHighlighted.includes(n));
+      let arrNotHighlighted = selected.filter(
+        (n) => !arrHighlighted.includes(n)
+      );
       this.keyboard.addButtonTheme(
         this.translateIndexToButton(arrHighlighted),
         "highlighted"
@@ -250,17 +245,13 @@ export default {
           this.handleClick();
         }
       } else if (this.selected.length == 1) {
-        //if(this.mode == 3 || this.mode == 2){
         this.onKeyPress(this.arrButton[this.selected[0]]);
-        //this.onChange(this.arrButton[this.selected[0]]) ;
-        //}
-        //console.log("click");
         this.selected = [];
         this.setSelected(this.selected);
       }
     },
     onKeyup(e) {
-      //9 13
+    //9 13
       console.log(e);
       if (this.mode == 3) {
         e = e || window.event;
@@ -298,29 +289,34 @@ export default {
     onChange(input) {
       let key = this.selq;
       let val = "";
-      if (typeof this.storeInput[key] != "undefined") {
+      if(typeof this.storeInput[key] != "undefined"){
         val = this.storeInput[key];
       }
-      if (this.selected.length != 2) {
+      if(this.selected.length !=2){
         this.keyboard.setInput(val);
       } else {
-        if (input.replace(val, "") == "tab") {
+        let lastPressedKeyVal = input.replace(val, "");
+        if (lastPressedKeyVal == "tab" || lastPressedKeyVal == "tab2") {
+          this.keyboard.setInput(val);
           let index = Number(key.replace("keyboard-input-vue-", "")) + 1;
+          if (lastPressedKeyVal == "tab2") {
+            index = index - 2;
+          }
           const next = document.querySelector(".keyboard-input-vue-" + index);
-          this.storeInput[key] = input.replace(val, "");
           if (next) {
             this.selq = "keyboard-input-vue-" + index;
           } else {
-            //document.querySelector(".keyboard-input-vue-0").focus();
             this.selq = "keyboard-input-vue-0";
           }
           return;
         }
-        if (input.replace(val, "") == "home") {
-          window.open(chrome.runtime.getURL("index.html"), "_blank");
-          location.reload();
-        }
-        this.storeInput[key] = input;
+        //Nachricht fuer background
+          if(lastPressedKeyVal == "home"){
+            chrome.extension.sendMessage({subject:"home"}, function(response) {
+              location.reload();
+            });
+         }
+         this.storeInput[key] = input;
         document.querySelector("." + this.selq).value = input;
       }
       this.$emit("onChange", val);
@@ -340,14 +336,14 @@ export default {
       let currentLayout = this.keyboard.options.layoutName;
       let shiftToggle = currentLayout === "default" ? "shift" : "default";
       this.keyboard.setOptions({
-        layoutName: shiftToggle
+        layoutName: shiftToggle,
       });
-    }
+    },
   },
   watch: {
     input(input) {
       this.keyboard.setInput(input);
-    }
+    },
   },
   updated() {
     if (
@@ -375,7 +371,7 @@ export default {
       this.setSelected(selected);
     }
     this.selected = selected;
-  }
+  },
 };
 </script>
 
@@ -391,4 +387,5 @@ export default {
 .highlighted {
   background-color: coral !important;
 }
+
 </style>
