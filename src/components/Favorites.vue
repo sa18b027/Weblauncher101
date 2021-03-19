@@ -232,12 +232,10 @@ export default {
         }
         if (direction != "") {
           this.arrow = direction;
-          //setArrowdirection wird aufgerufen und direction wird übergeben
           this.setArrowDirection(direction);
         }
       }
     },
-    //Linke Haelfte:
     determineFirstHalf() {
       let result = [];
       let selected = this.getSelected;
@@ -253,7 +251,6 @@ export default {
       }
       return result;
     },
-    //Rechte Haelfte:
     determineSecondHalf() {
       let result = [];
       let selected = this.getSelected;
@@ -312,19 +309,15 @@ export default {
     this.yMin = rect.top;
     this.yMax = rect.bottom;
     let selected = this.getSelected;
-    //wenn selected leer ist, dann geht er die Länge der favorites durch und schreibt in die selected 0,1,2,3,4,5,6,7
     if (selected.length == 0) {
       for (let i = 0; i < this.favorites.length; i++) {
         selected.push(i);
       }
-      //wenn die Laenge nicht 8, zum beispiel 7, dann wird noch ein weiteres Element hinten drangefuegt
       if (this.favorites.length < 8) {
         selected.push(this.favorites.length);
       }
-      //hier schreibt er selected in setSelected
       this.setSelected(selected);
     }
-    //schreibt das geradegebildete selected in selected [] von data
     this.selected = selected;
   },
 };

@@ -17,8 +17,8 @@ export default {
     y1: { type: Number }, //oben link
     x2: { type: Number }, //unten rechts
     y2: { type: Number }, //unten rechts
-    sizex: { type: Number }, //Anzahl von Kacheln in einer Reihe,1,2,3,oder4
-    sizey: { type: Number }, //Anzahl von Kacheln in einer Spalte1,2
+    sizex: { type: Number }, //Anzahl von Kacheln in einer Reihe
+    sizey: { type: Number }, //Anzahl von Kacheln in einer Spalte
     position: { type: String }, //z.B.left,rigth,top, bottom
     mode: { type: Number },
     arrow: { type: String }, //z.B.left,rigth,top, bottom
@@ -43,7 +43,7 @@ export default {
     ]),
   },
   watch: {
-    //handelt highlighted für Pfeiltasten, setHighlighted ist ein mapMutation
+    //handelt highlighted für Pfeiltasten
     arrow(value) {
       if (this.mode == 3 && value == this.position) {
         this.setHighlighted(this.FavIndex);
@@ -58,8 +58,7 @@ export default {
       if (arrIndex.length > 0) {
         //arrIndex[0]=ist die Stelle des Index von der gewählten Kachel
         let index = arrIndex[0] % this.sizex; //0,1,2,3
-        this.xMin = this.x1 + (index * (this.x2 - this.x1)) / this.sizex; //Haelfte vom großen Rechteck(blau)= Laenge vom blauen Rechteck
-        //thisx2-this.x1
+        this.xMin = this.x1 + (index * (this.x2 - this.x1)) / this.sizex; //Hälfte vom großen Rechteck(blau)=thisx2-this.x1
         index = parseInt(arrIndex[0] / this.sizex);
         this.yMin = this.y1 + (index * (this.y2 - this.y1)) / this.sizey; //Hälfte bestimmen
         let lastIndex = arrIndex.length - 1; //arrIndex.length= Hälfte von Länge,max4

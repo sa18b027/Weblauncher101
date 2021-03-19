@@ -1,8 +1,8 @@
 <template>
   <div @click="handleClick">
     {{ getCurrentCoor }} <br />
-    <WebGazer @onNewData="onNewData" :off="gazeroff" style="position: absolute;right: 0px;"/>
     <!-- Eigenschaft die sich ändert um vue upzudaten -->
+    <!-- class ="keysstyle" -->
 
     <div :class="keyboardClass" ref="parent"></div>
     <HalfFavourite
@@ -40,11 +40,10 @@ import "simple-keyboard/build/css/index.css";
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
 import HalfFavourite from "./HalfFavourite.vue";
-import WebGazer from "./WebGazer.vue";
 
 export default {
   name: "Tastatur",
-  components: { HalfFavourite, WebGazer },
+  components: { HalfFavourite },
   props: {
     keyboardClass: {
       default: "simple-keyboard",
@@ -85,8 +84,6 @@ export default {
     selq: "keyboard-input-vue-0",
     mode: 1, // 1 absolute 2 relative 3 arrows
     arrow: "",
-    clicksGazer: 0,
-    gazeroff:true,
     storeInput: {},
     keySchalter: true,
     buttons1:
@@ -98,17 +95,12 @@ export default {
   mounted() {
     this.mode = 1;
     let thiz = this;
+    //um bei der Tastatur den mode zu bestimmen, da es unter einera nderen domain läuft schickt er Nachricht an background.js
     chrome.extension.sendMessage({subject:"mode"}, function(response) {
       thiz.mode = response.mode;
-      console.log("a " + response.mode)
-      if(thiz.mode == 4){
-        thiz.gazeroff = false;
-        window.addEventListener("click", thiz.adjustGazerClick);
-      }
     });
     window.addEventListener("keyup", this.onKeyup);
-
-    //////////////////////////////////////////////
+    //////////////////////////////////////////////   \u00A7
     this.keyboard = new Keyboard({
       onChange: this.onChange,
       theme: "hg-theme-default hg-layout-default myTheme",
@@ -153,15 +145,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setSelected", "setArrowDirection", "setCurrentCoor"]),
-    onNewData(coord) {
-      this.x = coord.x;
-      this.y = coord.y;
-      this.setCurrentCoor({
-        x: coord.x,
-        y: coord.y,
-      });
-    },
+    ...mapMutations(["setSelected", "setArrowDirection"]),
     //64,32,16
     determineFirstHalf() {
       let result = [];
@@ -223,7 +207,7 @@ export default {
         return arrPosition[index];
       }
       //alterniert zwischen links,rechts und obern,unten
-      if (this.mode == 2 || this.mode == 3 || this.mode == 4) {
+      if (this.mode == 2 || this.mode == 3) {
         let selected = this.getSelected;
         if (selected.length == 32 || selected.length == 8) {
           arrPosition = ["top", "bottom"];
@@ -251,22 +235,10 @@ export default {
       if (this.mode == 3) {
         this.xMin = 6; // any random value to refreh the child component. xMin does not play any role in mode 3, damit vue das Bild neuzeichnet
       }
-      if (this.mode == 4) {
-        let snapShotHighlightedSituation = this.getHighlighted;
-        setTimeout(() => {
-          if(snapShotHighlightedSituation == this.getHighlighted){
-            this.handleClick();
-          }
-        }, 2500);      }
+
       //console.log(this.selected);
     },
     handleClick: function() {
-      let key = this.selq;
-      let val = "";
-      if(typeof this.storeInput[key] != "undefined"){
-        val = this.storeInput[key];
-      }
-      console.log("handleClick: " +val);
       if (this.selected.length > 1) {
         this.selected = this.getHighlighted;
         this.setSelected(this.selected);
@@ -274,26 +246,9 @@ export default {
           this.handleClick();
         }
       } else if (this.selected.length == 1) {
-        let taste = this.arrButton[this.selected[0]];
         this.onKeyPress(this.arrButton[this.selected[0]]);
         this.selected = [];
         this.setSelected(this.selected);
-        if(this.mode == 3){ //onChange is not called
-          console.log("handleClick");
-          this.onChange(val+taste);
-          /*this.storeInput[key] = val +;
-          document.querySelector("." + this.selq).value = input;
-          console.log("GOOD");
-          console.log(taste);
-          console.log(val);*/
-        }
-      }
-    },
-    adjustGazerClick(){
-      this.clicksGazer++ ;
-      if( this.clicksGazer >= 5){
-        this.isAppOn = true;
-        //this.handleClick();
       }
     },
     onKeyup(e) {
@@ -333,13 +288,12 @@ export default {
       return s;
     },
     onChange(input) {
-      console.log("ONCHANGE: " + input);
       let key = this.selq;
       let val = "";
       if(typeof this.storeInput[key] != "undefined"){
         val = this.storeInput[key];
       }
-      if(this.selected.length > 2){
+      if(this.selected.length !=2){
         this.keyboard.setInput(val);
       } else {
         let lastPressedKeyVal = input.replace(val, "");
@@ -357,6 +311,7 @@ export default {
           }
           return;
         }
+        //Nachricht fuer background
           if(lastPressedKeyVal == "home"){
             chrome.extension.sendMessage({subject:"home"}, function(response) {
               location.reload();
@@ -423,6 +378,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+/* .keysstyle {
+  position:fixed;
+  bottom: 0;
+  right: 0;
+} */
 .sameSize {
   width: 0.0625%;
 }
